@@ -1,0 +1,106 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: rdsSecurityGroup
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroup
+      spec:
+        forProvider:
+          description: "Security group for RDS"
+          #vpcIdSelector:
+          #  matchControllerRef: true
+    patches:
+      - fromFieldPath: spec.vpcId
+        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: standardTags
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rds-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rds-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[securitygroup]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rds-sg"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: rdsSecurityGroupRuleIngress
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          description: "Allow ingress for rds"
+          fromPort: 3306
+          protocol: "tcp"
+          toPort: 3306
+          type: ingress
+          securityGroupIdSelector:
+            matchControllerRef: true
+          cidrBlocks:
+          - 0.0.0.0/0
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rds-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-sg-rule-rds-ingress"
+    ## SecurityGroupRule for Cluster Egress
+- op: add
+  path: /spec/resources/-
+  value:
+    name: rdsSecurityGroupRuleEgress
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          description: "Egress"
+          fromPort: 0
+          protocol: "-1"
+          toPort: 0
+          type: egress
+          cidrBlocks:
+            - "0.0.0.0/0"
+          securityGroupIdSelector:
+            matchControllerRef: true
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rds-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-sg-rule-rds-egress"

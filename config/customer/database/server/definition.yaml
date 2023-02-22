@@ -1,0 +1,40 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xmysqlsrvs.demo.upbound.io
+spec:
+  names:
+    kind: XMySQLSrv
+    plural: xmysqlsrvs
+  claimNames:
+    kind: MySQLSrv
+    plural: mysqlsrvs
+  group: demo.upbound.io
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID of this for naming
+              storageGB:
+                type: integer
+                description: storage gb 
+              region:
+                type: string
+                description: region for db
+              vpcId:
+                type: string
+                description: vpcid to use
+            required:
+              - id
+              - region
+              - storageGB
+              - vpcId

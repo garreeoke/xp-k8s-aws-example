@@ -1,0 +1,13 @@
+apiVersion: demo.upbound.io/v1alpha1
+kind: CustomerEnv
+metadata:
+  name: upbound-demo-customer-se2
+spec:
+  customerId: upbound-demo-customer-se2
+  region: us-west-2
+  owner: ww
+  env: stage
+  size: small
+  cloud: aws
+  k8Version: "1.22"
+  vpcId: vpc-0d10f6e95958fa578

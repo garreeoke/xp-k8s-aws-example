@@ -1,0 +1,162 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: subnet-public-a
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: public
+      spec:
+        forProvider:
+          mapPublicIpOnLaunch: true
+          cidrBlock: 192.168.0.0/18
+          #vpcIdSelector:
+          #  matchControllerRef: true
+          tags:
+            kubernetes.io/role/elb: "1"
+    patches:
+      - fromFieldPath: spec.vpcId
+        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.region
+        toFieldPath: metadata.labels[zone]
+        transforms:
+          - type: string
+            string:
+              fmt: "%sa"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.availabilityZone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sa"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: subnet-public-b
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: public
+      spec:
+        forProvider:
+          mapPublicIpOnLaunch: true
+          cidrBlock: 192.168.64.0/18
+          vpcIdSelector:
+            matchControllerRef: true
+          tags:
+            kubernetes.io/role/elb: "1"
+    patches:
+      - fromFieldPath: spec.vpcId
+        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.region
+        toFieldPath: metadata.labels[zone]
+        transforms:
+          - type: string
+            string:
+              fmt: "%sb"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.availabilityZone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sb"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    #name: subnet-private-west-2a
+    name: subnet-private-a
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: private
+      spec:
+        forProvider:
+          cidrBlock: 192.168.128.0/18
+          vpcIdSelector:
+            matchControllerRef: true
+          tags:
+            shared: ""
+            kubernetes.io/role/elb: "1"
+    patches:
+      - fromFieldPath: spec.vpcId
+        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.region
+        toFieldPath: metadata.labels[zone]
+        transforms:
+          - type: string
+            string:
+              fmt: "%sa"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.availabilityZone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sa"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.shared
+        transforms:
+          - type: string
+            string:
+              fmt: "kubernetes.io/cluster/%s"
+- op: add
+  path: /spec/resources/-
+  value:
+    #name: subnet-private-west-2b
+    name: subnet-private-b
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: private
+      spec:
+        forProvider:
+          cidrBlock: 192.168.192.0/18
+          vpcIdSelector:
+            matchControllerRef: true
+          tags:
+            shared: ""
+            kubernetes.io/role/elb: "1"
+    patches:
+      - fromFieldPath: spec.vpcId
+        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.region
+        toFieldPath: metadata.labels[zone]
+        transforms:
+          - type: string
+            string:
+              fmt: "%sb"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.availabilityZone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sb"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.shared
+        transforms:
+          - type: string
+            string:
+              fmt: "kubernetes.io/cluster/%s"

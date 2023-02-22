@@ -1,0 +1,13 @@
+apiVersion: demo.upbound.io/v1alpha1
+kind: CustomerEnv
+metadata:
+  name: upbound-demo-customer-se1
+spec:
+  customerId: upbound-demo-customer-se1
+  region: us-west-2
+  owner: ww
+  env: stage
+  size: small
+  cloud: aws
+  k8Version: "1.23"
+  vpcId: vpc-0e317645280c7b449 # change this to existing VPC

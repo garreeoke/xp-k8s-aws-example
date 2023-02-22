@@ -1,0 +1,70 @@
+- op : add
+  path: /spec/resources/-
+  value:
+    name: rdsInstance
+    base:
+      apiVersion: rds.aws.upbound.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          region: us-west-2
+          dbSubnetGroupNameSelector:
+            matchControllerRef: true
+          instanceClass: db.t2.small
+          dbName: upboundaws
+          username: admin
+          passwordSecretRef:
+            name: rds-creds
+            namespace: upbound-system
+            key: pass
+          engine: mysql
+          engineVersion: "5.7"
+          skipFinalSnapshotBeforeDeletion: true
+          publiclyAccessible: false
+        deletionPolicy: Delete
+    connectionDetails:
+      - fromConnectionSecretKey: username
+      - fromConnectionSecretKey: password
+      - fromConnectionSecretKey: endpoint
+      - fromConnectionSecretKey: port
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-db-srv"
+      - fromFieldPath: spec.id
+        toFieldPath: "spec.writeConnectionSecretToRef.name"
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-db-srv"
+      - fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+        toFieldPath: spec.writeConnectionSecretToRef.namespace
+      - fromFieldPath: "spec.storageGB"
+        toFieldPath: "spec.forProvider.allocatedStorage"
+        transforms:
+        - type: math
+          math:
+            multiply: 1024
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcSecurityGroupIdSelector.matchLabels[securitygroup]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-rds-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.parameterGroupName
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-db-parameter-group"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.dbSubnetGroupName
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-db-sn-grp" 

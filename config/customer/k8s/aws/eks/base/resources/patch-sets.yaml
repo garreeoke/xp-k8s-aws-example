@@ -1,0 +1,11 @@
+- op: add
+  path: /spec/patchSets/-
+  value:
+    name: standardTags
+    patches:
+      - fromFieldPath: spec.clientId
+        toFieldPath: spec.forProvider.tags.Client
+      - fromFieldPath: spec.owner
+        toFieldPath: spec.forProvider.tags.Owner
+      - fromFieldPath: spec.env
+        toFieldPath: spec.forProvider.tags.Environment

@@ -1,0 +1,306 @@
+# EfsCsiPolicy
+#- op: add
+#  path: /spec/resources/-
+#  value:
+#    name: efscsipolicy
+#    base:
+#      apiVersion: iam.aws.upbound.io/v1beta1
+#      kind: Policy
+#      spec:
+#        forProvider:
+#          policy: |
+#            {
+#              "Version": "2012-10-17",
+#              "Statement": [
+#                {
+#                  "Effect": "Allow",
+#                  "Action": [
+#                    "elasticfilesystem:DescribeAccessPoints",
+#                    "elasticfilesystem:DescribeFileSystems"
+#                  ],
+#                  "Resource": "*"
+#                },
+#                {
+#                  "Effect": "Allow",
+#                  "Action": [
+#                    "elasticfilesystem:CreateAccessPoint"
+#                  ],
+#                  "Resource": "*",
+#                  "Condition": {
+#                    "StringLike": {
+#                      "aws:RequestTag/efs.csi.aws.com/cluster": "true"
+#                    }
+#                  }
+#                },
+#                {
+#                  "Effect": "Allow",
+#                  "Action": "elasticfilesystem:DeleteAccessPoint",
+#                  "Resource": "*",
+#                  "Condition": {
+#                    "StringEquals": {
+#                      "aws:ResourceTag/efs.csi.aws.com/cluster": "true"
+#                    }
+#                  }
+#                }
+#              ]
+#            }
+#    patches:
+#      - fromFieldPath: spec.id
+#        toFieldPath: spec.forProvider.name
+#        transforms:
+#        - type: string
+#          string:
+#            fmt: "%s-efs-csi-policy"
+# AlbIngressPolicy
+- op: add
+  path: /spec/resources/-
+  value:
+    name: albIngressPolicy
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: Policy
+      spec:
+        forProvider:
+          policy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "acm:DescribeCertificate",
+                    "acm:ListCertificates",
+                    "acm:GetCertificate"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:AuthorizeSecurityGroupIngress",
+                    "ec2:CreateSecurityGroup",
+                    "ec2:CreateTags",
+                    "ec2:DeleteTags",
+                    "ec2:DeleteSecurityGroup",
+                    "ec2:DescribeAccountAttributes",
+                    "ec2:DescribeAddresses",
+                    "ec2:DescribeInstances",
+                    "ec2:DescribeInstanceStatus",
+                    "ec2:DescribeInternetGateways",
+                    "ec2:DescribeNetworkInterfaces",
+                    "ec2:DescribeSecurityGroups",
+                    "ec2:DescribeSubnets",
+                    "ec2:DescribeTags",
+                    "ec2:DescribeVpcs",
+                    "ec2:ModifyInstanceAttribute",
+                    "ec2:ModifyNetworkInterfaceAttribute",
+                    "ec2:RevokeSecurityGroupIngress"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "elasticloadbalancing:AddListenerCertificates",
+                    "elasticloadbalancing:AddTags",
+                    "elasticloadbalancing:CreateListener",
+                    "elasticloadbalancing:CreateLoadBalancer",
+                    "elasticloadbalancing:CreateRule",
+                    "elasticloadbalancing:CreateTargetGroup",
+                    "elasticloadbalancing:DeleteListener",
+                    "elasticloadbalancing:DeleteLoadBalancer",
+                    "elasticloadbalancing:DeleteRule",
+                    "elasticloadbalancing:DeleteTargetGroup",
+                    "elasticloadbalancing:DeregisterTargets",
+                    "elasticloadbalancing:DescribeListenerCertificates",
+                    "elasticloadbalancing:DescribeListeners",
+                    "elasticloadbalancing:DescribeLoadBalancers",
+                    "elasticloadbalancing:DescribeLoadBalancerAttributes",
+                    "elasticloadbalancing:DescribeRules",
+                    "elasticloadbalancing:DescribeSSLPolicies",
+                    "elasticloadbalancing:DescribeTags",
+                    "elasticloadbalancing:DescribeTargetGroups",
+                    "elasticloadbalancing:DescribeTargetGroupAttributes",
+                    "elasticloadbalancing:DescribeTargetHealth",
+                    "elasticloadbalancing:ModifyListener",
+                    "elasticloadbalancing:ModifyLoadBalancerAttributes",
+                    "elasticloadbalancing:ModifyRule",
+                    "elasticloadbalancing:ModifyTargetGroup",
+                    "elasticloadbalancing:ModifyTargetGroupAttributes",
+                    "elasticloadbalancing:RegisterTargets",
+                    "elasticloadbalancing:RemoveListenerCertificates",
+                    "elasticloadbalancing:RemoveTags",
+                    "elasticloadbalancing:SetIpAddressType",
+                    "elasticloadbalancing:SetSecurityGroups",
+                    "elasticloadbalancing:SetSubnets",
+                    "elasticloadbalancing:SetWebACL"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "iam:CreateServiceLinkedRole",
+                    "iam:GetServerCertificate",
+                    "iam:ListServerCertificates"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "waf-regional:GetWebACLForResource",
+                    "waf-regional:GetWebACL",
+                    "waf-regional:AssociateWebACL",
+                    "waf-regional:DisassociateWebACL"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "tag:GetResources",
+                    "tag:TagResources"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "waf:GetWebACL"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-alb-ingress-policy"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[customPolicy]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-alb-ingress-policy"
+# AutoScaler Policy
+- op: add
+  path: /spec/resources/-
+  value:
+    name: autoScalerPolicy
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: Policy
+      spec:
+        forProvider:
+          policy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Action": [
+                    "autoscaling:DescribeAutoScalingGroups",
+                    "autoscaling:DescribeAutoScalingInstances",
+                    "autoscaling:DescribeLaunchConfigurations",
+                    "autoscaling:DescribeTags",
+                    "autoscaling:SetDesiredCapacity",
+                    "autoscaling:TerminateInstanceInAutoScalingGroup",
+                    "ec2:DescribeLaunchTemplateVersions"
+                  ],
+                  "Resource": "*",
+                  "Effect": "Allow"
+                }
+              ]
+            }
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-auto-scaler-policy"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[customPolicy]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-auto-scaler-policy"
+#- op: add
+#  path: /spec/resources/-
+#  value:
+#    name: ec2RoleForSsmPolicyAttachment
+#    base:
+#      apiVersion: iam.aws.upbound.io/v1beta1
+##      kind: RolePolicyAttachment
+#      spec:
+#        forProvider:
+#          policyArn: arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+#          roleSelector:
+#            matchControllerRef: true
+#    patches:
+#      - type: PatchSet
+#        patchSetName: matchRoleLabelWorkerNode
+# Would have to know account # or some other way to find this
+#- op: add
+#  path: /spec/resources/-
+#  value:
+#    name: SODAssumeRolePolicyAttachment
+#    base:
+#      apiVersion: iam.aws.upbound.io/v1beta1
+#      kind: RolePolicyAttachment
+#      spec:
+#        forProvider:
+#          policyArn: arn:aws:iam::${var.AWSAccount}:policy/SODAssumeRolePolicy
+#          roleSelector:
+#            matchControllerRef: true
+#    patches:
+#      - type: PatchSet
+#        patchSetName: matchRoleLabelWorkerNode
+# Custom Policy Attachment
+#- op: add
+#  path: /spec/resources/-
+#  value:
+#    name: albIngressPolicyAttachment
+#    base:
+#      apiVersion: iam.aws.upbound.io/v1beta1
+#      kind: RolePolicyAttachment
+#      spec:
+#        forProvider:
+#          roleSelector:
+#            matchControllerRef: true
+#          policyArnSelector:
+#            matchControllerRef: true
+#    patches:
+#      - type: PatchSet
+#        patchSetName: matchRoleLabelWorkerNode
+#      - fromFieldPath: spec.id
+#        toFieldPath: spec.forProvider.policyArnSelector.matchLabels[customPolicy]
+#        transforms:
+#          - type: string
+#            string:
+#              fmt: "%s-alb-ingress-policy"
+#- op: add
+#  path: /spec/resources/-
+#  value:
+#    name: clusterAutoScalerPolicyAttachment
+#    base:
+#      apiVersion: iam.aws.upbound.io/v1beta1
+#      kind: RolePolicyAttachment
+#      spec:
+#        forProvider:
+#          roleSelector:
+#            matchControllerRef: true
+#          policyArnSelector:
+#            matchControllerRef: true
+#    patches:
+#      - type: PatchSet
+#        patchSetName: matchRoleLabelWorkerNode
+#      - fromFieldPath: spec.id
+#        toFieldPath: spec.forProvider.policyArnSelector.matchLabels[customPolicy]
+#        transforms:
+##          - type: string
+#            string:
+#              fmt: "%s-auto-scaler-policy"

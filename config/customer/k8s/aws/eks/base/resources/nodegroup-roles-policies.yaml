@@ -1,0 +1,100 @@
+## Each resource will be added with the top three lines line the below, followed by the resource info
+# - op: add
+#   path: /spec/resources/-
+#   value:
+#     base: ...
+## If you want to add a patchset it would be ..
+# - op: add
+#   path: /spec/patchSets/-
+#   value:
+#     base: ...
+- op: add
+  path: /spec/patchSets/-
+  value:
+    name: matchRoleLabelWorkerNode
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.roleSelector.matchLabels[role]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-nodegroup"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: nodegroupRole
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: Role
+      spec:
+        forProvider:
+          assumeRolePolicy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "ec2.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            }
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[role]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-nodegroup"
+# Standard Policy Attachments
+- op: add
+  path: /spec/resources/-
+  value:
+    name: workerNodeRolePolicyAttachment
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+          roleSelector:
+            matchControllerRef: true
+    patches:
+      - type: PatchSet
+        patchSetName: matchRoleLabelWorkerNode
+- op: add
+  path: /spec/resources/-
+  value:
+    name: cniRolePolicyAttachment
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+          roleSelector:
+            matchControllerRef: true
+    patches:
+      - type: PatchSet
+        patchSetName: matchRoleLabelWorkerNode
+- op: add
+  path: /spec/resources/-
+  value:
+    name: containerRegistryRolePolicyAttachment
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+          roleSelector:
+            matchControllerRef: true
+    patches:
+      - type: PatchSet
+        patchSetName: matchRoleLabelWorkerNode

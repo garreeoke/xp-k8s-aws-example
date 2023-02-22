@@ -1,0 +1,137 @@
+- op : add
+  path: /spec/resources/-
+  value:
+    name: parameterGroup
+    base:
+      apiVersion: rds.aws.upbound.io/v1beta1
+      kind: ParameterGroup
+      metadata:
+        name: example-parametergroup
+      spec:
+        forProvider:
+          #description: example
+          family: mysql5.7
+          parameter:
+            - applyMethod: pending-reboot
+              name: lower_case_table_names
+              value: "1"
+            - applyMethod: pending-reboot 
+              name: innodb_lock_wait_timeout
+              value: "5000"
+            - applyMethod: pending-reboot 
+              name: back_log
+              value: "80"
+            - applyMethod: pending-reboot 
+              name: flush_time
+              value: "0"
+            - applyMethod: pending-reboot 
+              name: general_log
+              value: "1"
+            - applyMethod: pending-reboot 
+              name: innodb_flush_log_at_trx_commit
+              value: "1"
+            - applyMethod: pending-reboot 
+              name: innodb_thread_concurrency
+              value: "33"
+            - applyMethod: pending-reboot 
+              name: innodb_autoextend_increment
+              value: "64"
+            - applyMethod: pending-reboot 
+              name: innodb_buffer_pool_instances
+              value: "8"
+            - applyMethod: pending-reboot 
+              name: innodb_concurrency_tickets
+              value: "5000"
+            - applyMethod: pending-reboot 
+              name: innodb_old_blocks_time
+              value: "1000"
+            - applyMethod: pending-reboot 
+              name: innodb_open_files
+              value: "300"
+            - applyMethod: pending-reboot 
+              name: innodb_stats_on_metadata
+              value: "0"
+            - applyMethod: pending-reboot 
+              name: innodb_file_per_table
+              value: "1"
+            - applyMethod: pending-reboot 
+              name: join_buffer_size
+              value: "562144"
+            - applyMethod: pending-reboot 
+              name: key_buffer_size
+              value: "8388608"
+            - applyMethod: pending-reboot 
+              name: long_query_time
+              value: "180"
+            - applyMethod: pending-reboot 
+              name: max_connections
+              value: "5000"
+            - applyMethod: pending-reboot 
+              name: max_connect_errors
+              value: "100"
+            - applyMethod: pending-reboot 
+              name: connect_timeout
+              value: "5000"
+            - applyMethod: pending-reboot 
+              name: query_cache_size
+              value: "16777216"
+            - applyMethod: pending-reboot 
+              name: query_cache_type
+              value: "1"
+            - applyMethod: pending-reboot 
+              name: read_buffer_size
+              value: "65536"
+            - applyMethod: pending-reboot 
+              name: read_rnd_buffer_size
+              value: "262144"
+            - applyMethod: pending-reboot 
+              name: innodb_sort_buffer_size
+              value: "262144"
+            - applyMethod: pending-reboot 
+              name: sync_master_info
+              value: "10000"
+            - applyMethod: pending-reboot 
+              name: sync_relay_log
+              value: "10000"
+            - applyMethod: pending-reboot 
+              name: sync_relay_log_info
+              value: "10000"
+            - applyMethod: pending-reboot 
+              name: slow_query_log
+              value: "1"
+            - applyMethod: pending-reboot 
+              name: table_definition_cache
+              value: "1400"
+            - applyMethod: pending-reboot 
+              name: innodb_log_buffer_size
+              value: "16777216"
+            - applyMethod: pending-reboot 
+              name: innodb_log_file_size
+              value: "128000000"
+            - applyMethod: pending-reboot 
+              name: max_allowed_packet
+              value: "1073741824"
+            - applyMethod: pending-reboot 
+              name: innodb_print_all_deadlocks
+              value: "1"
+            #- applyMethod: pending-reboot 
+            #  name: tx_isolation
+            #  value: "READ-COMMITTED"
+            - applyMethod: pending-reboot 
+              name: max_execution_time
+              value: "3600000"
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-db-parameter-group"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.description
+        transforms:
+        - string:
+            fmt: 'parameter group for %s created by crossplane'
+          type: string       

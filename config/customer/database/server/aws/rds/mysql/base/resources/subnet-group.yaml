@@ -1,0 +1,26 @@
+- op : add
+  path: /spec/resources/-
+  value:
+    name: rdsSubnetGroup
+    base:
+      apiVersion: rds.aws.upbound.io/v1beta1
+      kind: SubnetGroup
+      spec:
+        forProvider:
+          description: An excellent formation of subnetworks.
+          subnetIdSelector:
+            #matchControllerRef: true
+            matchLabels:
+              access: public
+        deletionPolicy: Delete
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-db-sn-grp"
+      - fromFieldPath: "spec.id"
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]

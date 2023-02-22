@@ -1,0 +1,9 @@
+apiVersion: demo.upbound.io/v1alpha1
+kind: MySQLSrv
+metadata:
+  name: upbounddb1
+spec:
+  storageGB: 5 # In the Composition, we use a math transform to multiply this by 1024
+  id: upbounddb1
+  region: us-west-2
+  vpcId: vpc-0e317645280c7b449

@@ -1,0 +1,61 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xk8s.demo.upbound.io
+spec:
+  group: demo.upbound.io
+  names:
+    kind: XK8s
+    plural: xk8s
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID of this environment to be used for naming
+              env:
+                type: string
+                description: what type of env is it
+              owner:
+                type: string
+                description: owner
+              region:
+                type: string
+                description: Region #us-west-2
+              vpcId:
+                type: string
+                description: ID of the VPC to use
+              size:
+                type: string
+                description: Size of node.
+                enum:
+                  - small
+                  - medium
+                  - large
+              k8Version:
+                type: string
+                description: k8s version 1.21
+            required:
+            - id
+            - env
+            - owner
+            - region
+            #- vpcId
+            - size
+            - k8Version
+          status:
+            description: A status represents the observed state
+            properties:
+              eks:
+                description: Freeform field containing status information for eks
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+            type: object

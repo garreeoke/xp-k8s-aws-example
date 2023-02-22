@@ -1,0 +1,20 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: nodeInstanceProfile
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: InstanceProfile
+      spec:
+        forProvider:
+          roleSelector:
+            matchControllerRef: true
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ekscluster-node-instance-profile"
+      - type: PatchSet
+        patchSetName: matchRoleLabelWorkerNode

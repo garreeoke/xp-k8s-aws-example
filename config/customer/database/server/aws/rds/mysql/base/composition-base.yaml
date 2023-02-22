@@ -1,0 +1,12 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xmysqlsrvs.demo.upbound.io
+  labels:
+    cloud: aws
+spec:
+  compositeTypeRef:
+    apiVersion: demo.upbound.io/v1alpha1
+    kind: XMySQLSrv
+  patchSets: []
+  resources: []

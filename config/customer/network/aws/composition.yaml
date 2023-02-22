@@ -1,0 +1,637 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  labels:
+    cloud: aws
+  name: aws.xnetworks.demo.upbound.io
+spec:
+  compositeTypeRef:
+    apiVersion: demo.upbound.io/v1alpha1
+    kind: XNetwork
+  patchSets:
+  - name: network-id
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.labels[networks.aws.platformref.crossplane.io/network-id]
+      type: FromCompositeFieldPath
+  - name: standardTags
+    patches:
+    - fromFieldPath: spec.clientId
+      toFieldPath: spec.forProvider.tags.Client
+    - fromFieldPath: spec.owner
+      toFieldPath: spec.forProvider.tags.Owner
+    - fromFieldPath: spec.env
+      toFieldPath: spec.forProvider.tags.Environment
+  resources:
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: public
+      spec:
+        forProvider:
+          cidrBlock: 192.168.0.0/18
+          mapPublicIpOnLaunch: true
+          tags:
+            kubernetes.io/role/elb: "1"
+    name: subnet-public-a
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.region
+      toFieldPath: metadata.labels[zone]
+      transforms:
+      - string:
+          fmt: '%sa'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone
+      transforms:
+      - string:
+          fmt: '%sa'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: public
+      spec:
+        forProvider:
+          cidrBlock: 192.168.64.0/18
+          mapPublicIpOnLaunch: true
+          tags:
+            kubernetes.io/role/elb: "1"
+          vpcIdSelector:
+            matchControllerRef: true
+    name: subnet-public-b
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.region
+      toFieldPath: metadata.labels[zone]
+      transforms:
+      - string:
+          fmt: '%sb'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone
+      transforms:
+      - string:
+          fmt: '%sb'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: private
+      spec:
+        forProvider:
+          cidrBlock: 192.168.128.0/18
+          tags:
+            kubernetes.io/role/elb: "1"
+            shared: ""
+          vpcIdSelector:
+            matchControllerRef: true
+    name: subnet-private-a
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.region
+      toFieldPath: metadata.labels[zone]
+      transforms:
+      - string:
+          fmt: '%sa'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone
+      transforms:
+      - string:
+          fmt: '%sa'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.shared
+      transforms:
+      - string:
+          fmt: kubernetes.io/cluster/%s
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Subnet
+      metadata:
+        labels:
+          access: private
+      spec:
+        forProvider:
+          cidrBlock: 192.168.192.0/18
+          tags:
+            kubernetes.io/role/elb: "1"
+            shared: ""
+          vpcIdSelector:
+            matchControllerRef: true
+    name: subnet-private-b
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.region
+      toFieldPath: metadata.labels[zone]
+      transforms:
+      - string:
+          fmt: '%sb'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.availabilityZone
+      transforms:
+      - string:
+          fmt: '%sb'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.shared
+      transforms:
+      - string:
+          fmt: kubernetes.io/cluster/%s
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTable
+      spec:
+        forProvider: null
+    name: routeTable
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-rttbl'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.labels[routetable]
+      transforms:
+      - string:
+          fmt: '%s-rttbl'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.name
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: MainRouteTableAssociation
+      spec:
+        forProvider:
+          routeTableIdSelector:
+            matchControllerRef: true
+    name: mainRouteTableAssociation
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.Name
+      transforms:
+      - string:
+          fmt: '%s-mainroutetableassociation'
+        type: string
+    - patchSetName: network-id
+      type: PatchSet
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Route
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          gatewayIdSelector:
+            matchControllerRef: true
+          routeTableIdSelector:
+            matchControllerRef: true
+          tags:
+            name: null
+    name: route
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-route'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.name
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: public
+          tags:
+            name: null
+    name: RouteTableAssociation-1
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+      transforms:
+      - string:
+          fmt: '%sa'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-rta'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.name
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: public
+          tags:
+            name: null
+    name: RouteTableAssociation-2
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+      transforms:
+      - string:
+          fmt: '%sb'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.name
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-rta'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+          tags:
+            name: null
+    name: RouteTableAssociation-3
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+      transforms:
+      - string:
+          fmt: '%sa'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.name
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-rta'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+          tags:
+            name: null
+    name: RouteTableAssociation-4
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+      transforms:
+      - string:
+          fmt: '%sb'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.name
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-rta'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: InternetGateway
+      spec:
+        forProvider: null
+    name: gateway
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.Name
+      transforms:
+      - string:
+          fmt: '%s-ig'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroup
+      spec:
+        forProvider:
+          description: Security group for all nodes in the cluster
+    name: nodeSecurityGroup
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: standardTags
+      type: PatchSet
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.name
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.labels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          cidrBlocks:
+          - 0.0.0.0/0
+          description: Allow egress from the nodes
+          fromPort: 0
+          protocol: "-1"
+          securityGroupIdSelector:
+            matchControllerRef: true
+          toPort: 0
+          type: egress
+    name: nodeSecurityGroupRuleEgress
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-sg-rule-node-egress'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          description: Allow node to communicate with each other
+          fromPort: 0
+          protocol: "-1"
+          securityGroupIdSelector:
+            matchControllerRef: true
+          sourceSecurityGroupIdSelector:
+            matchControllerRef: true
+          toPort: 65535
+          type: ingress
+    name: nodeSecurityGroupRuleDemoIngressSelf
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.sourceSecurityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-sg-rule-node-to-node'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          description: Allow worker Kubelets and pods to receive communication from
+            the cluster control plane
+          fromPort: 1025
+          protocol: tcp
+          securityGroupIdSelector:
+            matchControllerRef: true
+          sourceSecurityGroupIdSelector:
+            matchControllerRef: true
+          toPort: 65535
+          type: ingress
+    name: nodeSecurityGroupRuleDemoIngressCluster
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.sourceSecurityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-sg-rule-kubelets'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroup
+      spec:
+        forProvider:
+          description: Cluster communication with worker nodes
+    name: clusterSecurityGroup
+    patches:
+    - fromFieldPath: spec.vpcId
+      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: standardTags
+      type: PatchSet
+    - patchSetName: network-id
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-eskcluster-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.name
+      transforms:
+      - string:
+          fmt: '%s-eskcluster-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.labels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-eskcluster-sg'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          description: Allow pods to communicate with the cluster API Server -
+          fromPort: 443
+          protocol: tcp
+          securityGroupIdSelector:
+            matchControllerRef: true
+          sourceSecurityGroupIdSelector:
+            matchControllerRef: true
+          toPort: 443
+          type: ingress
+    name: clusterSecurityGroupRuleIngress
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-eskcluster-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.sourceSecurityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-node-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-sg-rule-pods-to-api-server'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          cidrBlocks:
+          - 0.0.0.0/0
+          description: Egress
+          fromPort: 0
+          protocol: "-1"
+          securityGroupIdSelector:
+            matchControllerRef: true
+          toPort: 0
+          type: egress
+    name: clusterSecurityGroupRuleEgress
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+      transforms:
+      - string:
+          fmt: '%s-eskcluster-sg'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-sg-rule-cluster-egress'
+        type: string

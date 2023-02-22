@@ -1,0 +1,74 @@
+- op: add
+  path: /spec/patchSets/-
+  value:
+    name: matchRoleLabelCluster
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.roleSelector.matchLabels[role]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-controlplane"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: controlplaneRole
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: Role
+      spec:
+        forProvider:
+          assumeRolePolicy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "eks.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+              ]
+            }
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[role]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-controlplane"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: clusterRolePolicyAttachment
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+          roleSelector:
+            matchControllerRef: true
+    patches:
+      - type: PatchSet
+        patchSetName: matchRoleLabelCluster
+#- op: add
+#  path: /spec/resources/-
+#  value:
+#    name: clusterServiceRolePolicyAttachment
+#    base:
+#      apiVersion: iam.aws.upbound.io/v1beta1
+#      kind: RolePolicyAttachment
+#      spec:
+#        forProvider:
+#          policyArn: arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+#          roleSelector:
+#            matchControllerRef: true
+#    patches:
+#      - type: PatchSet
+#        patchSetName: matchRoleLabelCluster

@@ -1,0 +1,44 @@
+resources:
+- composition-base.yaml
+
+patchesJson6902:
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/openid.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/node-group.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/launch-template.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/instance-profile.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/nodegroup-roles-policies.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/eks-cluster.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/cluster-roles.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xeks.k8s.demo.upbound.io
+    path: resources/patch-sets.yaml

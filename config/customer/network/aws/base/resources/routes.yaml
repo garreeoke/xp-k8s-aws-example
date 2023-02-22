@@ -1,0 +1,235 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: routeTable
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTable
+      spec:
+        forProvider:
+          #vpcIdSelector:
+          #  matchControllerRef: true
+    patches:
+      - fromFieldPath: spec.vpcId
+        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rttbl"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[routetable]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rttbl"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.name
+- op: add
+  path: /spec/resources/-
+  value:
+    name: mainRouteTableAssociation
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: MainRouteTableAssociation
+      spec:
+        forProvider:
+          routeTableIdSelector:
+            matchControllerRef: true
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.vpcId
+        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.Name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-mainroutetableassociation"
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: route
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: Route
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          gatewayIdSelector:
+            matchControllerRef: true
+          routeTableIdSelector:
+            matchControllerRef: true
+          # vpcEndpointIdSelector:
+          #   matchControllerRef: true
+          tags:
+            name: #patched
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-route"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.name
+- op: add
+  path: /spec/resources/-
+  value:
+    name: RouteTableAssociation-1
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: public
+          tags:
+            name: #patched
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sa"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rta"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.name
+- op: add
+  path: /spec/resources/-
+  value:
+    name: RouteTableAssociation-2
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: public
+          tags:
+            name: #patched
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sb"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.name
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rta"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: RouteTableAssociation-3
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+          tags:
+            name: #patched
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sa"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.name
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rta"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: RouteTableAssociation-4
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: RouteTableAssociation
+      spec:
+        forProvider:
+          destinationCidrBlock: 0.0.0.0/0
+          routeTableIdSelector:
+            matchControllerRef: true
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+          tags:
+            name: #patched
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels.zone
+        transforms:
+          - type: string
+            string:
+              fmt: "%sb"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.name
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-rta"

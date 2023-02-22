@@ -1,0 +1,51 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: kubernetesCluster
+    base:
+      apiVersion: eks.aws.upbound.io/v1beta1
+      kind: Cluster
+      spec:
+        forProvider:
+          roleArnSelector:
+            matchControllerRef: true
+          vpcConfig:
+            - endpointPrivateAccess: true
+              endpointPublicAccess: true
+    patches:
+      - type: PatchSet
+        patchSetName: standardTags
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.Name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ekscluster"
+      - fromFieldPath: spec.id
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.roleArnSelector.matchLabels[role]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-controlplane"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.k8Version
+        toFieldPath: spec.forProvider.version
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcConfig[0].securityGroupIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcConfig[0].subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - type: ToCompositeFieldPath
+        fromFieldPath: status.atProvider.identity.oidc.issuer
+        toFieldPath: status.eks.oidc
+        policy:
+          fromFieldPath: Optional
+      - fromFieldPath: spec.id
+        toFieldPath: spec.writeConnectionSecretToRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ekscluster"
+      - fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+        toFieldPath: spec.writeConnectionSecretToRef.namespace

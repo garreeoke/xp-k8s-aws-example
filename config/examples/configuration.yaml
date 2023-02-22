@@ -1,0 +1,13 @@
+apiVersion: pkg.crossplane.io/v1
+kind: Configuration
+metadata:
+  name: cp-pkg-platform-ref-aws
+spec:
+  ignoreCrossplaneConstraints: false
+  package: registry.upbound.io/nate-organization/test-plat-ref-aws:v0.0.1
+  packagePullSecrets:
+    - name: myorg-package-pull-secret
+  packagePullPolicy: Always
+  revisionActivationPolicy: Automatic
+  revisionHistoryLimit: 1
+  skipDependencyResolution: false

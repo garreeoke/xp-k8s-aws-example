@@ -1,0 +1,19 @@
+apiVersion: pkg.crossplane.io/v1alpha1
+kind: ControllerConfig
+metadata:
+  name: aws-config
+spec:
+  args:
+    - --max-reconcile-rate=11
+  podSecurityContext:
+    fsGroup: 2000
+  #args:
+  #- '--debug'
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2048Mi"
+      cpu: "2000m"
+      

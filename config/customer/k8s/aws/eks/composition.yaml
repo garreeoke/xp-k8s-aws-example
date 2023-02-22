@@ -1,0 +1,291 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  labels:
+    cloud: aws
+  name: xeks.k8s.demo.upbound.io
+spec:
+  compositeTypeRef:
+    apiVersion: demo.upbound.io/v1alpha1
+    kind: XK8s
+  patchSets:
+  - name: matchRoleLabelWorkerNode
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.roleSelector.matchLabels[role]
+      transforms:
+      - string:
+          fmt: '%s-nodegroup'
+        type: string
+  - name: matchRoleLabelCluster
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.roleSelector.matchLabels[role]
+      transforms:
+      - string:
+          fmt: '%s-controlplane'
+        type: string
+  - name: standardTags
+    patches:
+    - fromFieldPath: spec.clientId
+      toFieldPath: spec.forProvider.tags.Client
+    - fromFieldPath: spec.owner
+      toFieldPath: spec.forProvider.tags.Owner
+    - fromFieldPath: spec.env
+      toFieldPath: spec.forProvider.tags.Environment
+  resources:
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: OpenIDConnectProvider
+      spec:
+        forProvider:
+          clientIDList:
+          - sts.amazonaws.com
+          thumbprintList:
+          - 9e99a48a9960b14926bb7f3b02e22da2b0ab7280
+    name: oidcProvider
+    patches:
+    - fromFieldPath: status.eks.oidc
+      policy:
+        fromFieldPath: Required
+      toFieldPath: spec.forProvider.url
+  - base:
+      apiVersion: eks.aws.upbound.io/v1beta1
+      kind: NodeGroup
+      spec:
+        forProvider:
+          clusterNameSelector:
+            matchControllerRef: true
+          launchTemplate:
+          - version: "1"
+          nodeRoleArnSelector:
+            matchControllerRef: true
+          scalingConfig:
+          - desiredSize: 3
+            maxSize: 5
+            minSize: 3
+          subnetIdSelector:
+            matchLabels:
+              access: public
+    name: nodeGroupPublic
+    patches:
+    - fromFieldPath: spec.k8Version
+      toFieldPath: spec.forProvider.version
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.launchTemplate[0].name
+      transforms:
+      - string:
+          fmt: '%s-lt'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.nodeRoleArnSelector.matchLabels[role]
+      transforms:
+      - string:
+          fmt: '%s-nodegroup'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.subnetSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: LaunchTemplate
+      spec:
+        forProvider:
+          blockDeviceMappings:
+          - deviceName: /dev/sda1
+            ebs:
+            - volumeSize: 100
+              volumeType: gp3
+          defaultVersion: 1
+    name: nodeLaunchTemplate
+    patches:
+    - fromFieldPath: spec.size
+      toFieldPath: spec.forProvider.instanceTypes[0]
+      transforms:
+      - map:
+          large: t3.large
+          medium: t3.medium
+          small: t3.small
+        type: map
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.name
+      transforms:
+      - string:
+          fmt: '%s-lt'
+        type: string
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: InstanceProfile
+      spec:
+        forProvider:
+          roleSelector:
+            matchControllerRef: true
+    name: nodeInstanceProfile
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-ekscluster-node-instance-profile'
+        type: string
+    - patchSetName: matchRoleLabelWorkerNode
+      type: PatchSet
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: Role
+      spec:
+        forProvider:
+          assumeRolePolicy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "ec2.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            }
+    name: nodegroupRole
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.labels[role]
+      transforms:
+      - string:
+          fmt: '%s-nodegroup'
+        type: string
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+          roleSelector:
+            matchControllerRef: true
+    name: workerNodeRolePolicyAttachment
+    patches:
+    - patchSetName: matchRoleLabelWorkerNode
+      type: PatchSet
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+          roleSelector:
+            matchControllerRef: true
+    name: cniRolePolicyAttachment
+    patches:
+    - patchSetName: matchRoleLabelWorkerNode
+      type: PatchSet
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+          roleSelector:
+            matchControllerRef: true
+    name: containerRegistryRolePolicyAttachment
+    patches:
+    - patchSetName: matchRoleLabelWorkerNode
+      type: PatchSet
+  - base:
+      apiVersion: eks.aws.upbound.io/v1beta1
+      kind: Cluster
+      spec:
+        forProvider:
+          roleArnSelector:
+            matchControllerRef: true
+          vpcConfig:
+          - endpointPrivateAccess: true
+            endpointPublicAccess: true
+    name: kubernetesCluster
+    patches:
+    - patchSetName: standardTags
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.Name
+      transforms:
+      - string:
+          fmt: '%s-ekscluster'
+        type: string
+    - fromFieldPath: spec.id
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.roleArnSelector.matchLabels[role]
+      transforms:
+      - string:
+          fmt: '%s-controlplane'
+        type: string
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - fromFieldPath: spec.k8Version
+      toFieldPath: spec.forProvider.version
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcConfig[0].securityGroupIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcConfig[0].subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+    - fromFieldPath: status.atProvider.identity.oidc.issuer
+      policy:
+        fromFieldPath: Optional
+      toFieldPath: status.eks.oidc
+      type: ToCompositeFieldPath
+    - fromFieldPath: spec.id
+      toFieldPath: spec.writeConnectionSecretToRef.name
+      transforms:
+      - string:
+          fmt: '%s-ekscluster'
+        type: string
+    - fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+      toFieldPath: spec.writeConnectionSecretToRef.namespace
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: Role
+      spec:
+        forProvider:
+          assumeRolePolicy: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "eks.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+              ]
+            }
+    name: controlplaneRole
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.labels[role]
+      transforms:
+      - string:
+          fmt: '%s-controlplane'
+        type: string
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+          roleSelector:
+            matchControllerRef: true
+    name: clusterRolePolicyAttachment
+    patches:
+    - patchSetName: matchRoleLabelCluster
+      type: PatchSet

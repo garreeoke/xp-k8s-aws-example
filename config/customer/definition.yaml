@@ -1,0 +1,66 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcustomerenvs.demo.upbound.io
+spec:
+  group: demo.upbound.io
+  names:
+    kind: XCustomerEnv
+    plural: xcustomerenvs
+  claimNames:
+    kind: CustomerEnv
+    plural: customerenvs
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              customerId:
+                type: string
+                description: ID of the environment
+              region:
+                type: string
+                description: region
+              env:
+                type: string
+                description: client name
+                enum:
+                  - stage
+                  - prod
+              owner:
+                type: string
+                description: owner
+              vpcId:
+                type: string
+                description: ID of the existing VPC to use
+              cloud:
+                type: string
+                description: Cloud to provision to.
+              size:
+                type: string
+                description: Size of environment
+                enum:
+                  - small
+                  - medium
+                  - large
+              k8Version:
+                type: string
+                description: kubernetes version 1.21
+              rdsVersion:
+                type: string
+                description: rds version
+            required:
+            - customerId
+            - env
+            - region
+            - owner
+            #- vpcId
+            - cloud
+            - size
+            - k8Version

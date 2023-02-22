@@ -1,0 +1,30 @@
+resources:
+- composition-base.yaml
+
+patchesJson6902:
+  - target:
+      kind: Composition
+      version: v1
+      name: xmysqlsrvs.demo.upbound.io
+    path: resources/patch-sets.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xmysqlsrvs.demo.upbound.io
+    path: resources/rds-security-groups.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xmysqlsrvs.demo.upbound.io
+    path: resources/parameter-group.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xmysqlsrvs.demo.upbound.io
+    path: resources/subnet-group.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: xmysqlsrvs.demo.upbound.io
+    path: resources/instance.yaml
+  

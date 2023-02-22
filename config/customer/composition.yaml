@@ -1,0 +1,68 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xcustomerenvs.demo.upbound.io
+spec:
+  compositeTypeRef:
+    apiVersion: demo.upbound.io/v1alpha1
+    kind: XCustomerEnv
+  resources:
+    - base:
+        apiVersion: demo.upbound.io/v1alpha1
+        kind: XNetwork
+        compositionSelector:
+          matchLabels:
+            cloud: aws # patched
+      patches:
+        - fromFieldPath: spec.vpcId
+          toFieldPath: spec.vpcId
+        - fromFieldPath: spec.customerId
+          toFieldPath: spec.id
+        - fromFieldPath: spec.region
+          toFieldPath: spec.region
+        - fromFieldPath: spec.cloud
+          toFieldPath: compositionSelector.matchLabels.cloud
+      name: compositeNetwork
+    - base:
+        apiVersion: demo.upbound.io/v1alpha1
+        kind: XMySQLSrv
+        spec:
+          storageGB: 5
+      patches:
+        - fromFieldPath: spec.vpcId
+          toFieldPath: spec.vpcId
+        - fromFieldPath: spec.customerId
+          toFieldPath: spec.id
+        - fromFieldPath: spec.region
+          toFieldPath: spec.region
+        #- fromFieldPath: spec.cloud
+        #  toFieldPath: compositionSelector.matchLabels.cloud
+      name: compositeDB
+    - base:
+        apiVersion: demo.upbound.io/v1alpha1
+        kind: XK8s
+        compositionSelector:
+          matchLabels:
+            cloud: aws # patched
+      name: compositeK8s
+      patches:
+        - fromFieldPath: spec.vpcId
+          toFieldPath: spec.vpcId
+        - fromFieldPath: spec.customerId
+          toFieldPath: spec.id
+        - fromFieldPath: spec.region
+          toFieldPath: spec.region
+        - fromFieldPath: spec.k8Version
+          toFieldPath: spec.k8Version
+        - fromFieldPath: spec.env
+          toFieldPath: spec.env
+        - fromFieldPath: spec.owner
+          toFieldPath: spec.owner
+        - fromFieldPath: spec.cloud
+          toFieldPath: compositionSelector.matchLabels[cloud]
+        - fromFieldPath: spec.id
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+        - fromFieldPath: spec.claimRef.namespace
+          toFieldPath: spec.claim.namespace
+        - fromFieldPath: spec.size
+          toFieldPath: spec.size

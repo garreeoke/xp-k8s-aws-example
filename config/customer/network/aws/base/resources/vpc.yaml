@@ -1,0 +1,40 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: vcp
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPC
+      spec:
+        forProvider:
+          cidrBlock: 192.168.0.0/16
+          enableDnsSupport: true
+          enableDnsHostNames: true
+          tags:
+            Owner: Platform Team
+            Name: upbound-vpc
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+      - type: PatchSet
+        patchSetName: standardTags
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[vpc]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.tags.Name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-vpc"

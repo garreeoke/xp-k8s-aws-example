@@ -1,0 +1,33 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.demo.upbound.io
+  annotations:
+spec:
+  group: demo.upbound.io
+  names:
+    kind: XNetwork
+    plural: xnetworks
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: ID of this Network that other objects will use to refer to it.
+                vpcId:
+                  type: string
+                  description: vpcId of an already created vpc
+                region:
+                  type: string
+                  description: region of the network-id
+              required:
+                - id
+                - region

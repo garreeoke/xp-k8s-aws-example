@@ -1,0 +1,51 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: nodeLaunchTemplate
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: LaunchTemplate
+      spec: 
+        forProvider: 
+          blockDeviceMappings: 
+            - deviceName: /dev/sda1
+              ebs: 
+                - volumeSize: 100
+                  volumeType: gp3
+                  #deleteOnTermination: "false"
+                  #encrypted: "true"
+          #instanceType: t3.medium # m5.4xlarge eventually
+          #networkInterfaces: 
+          #  - associatePublicIpAddress: "false"
+          #vpcSecurityGroupIdSelector:
+          #  matchControllerRef: true
+          defaultVersion: 1
+    patches:
+      #- fromFieldPath: spec.id
+      #  toFieldPath: spec.forProvider.vpcSecurityGroupIdRefs[0].name
+      #  transforms:
+      #    - type: string
+      #      string:
+      #        fmt: "%s-node-sg"
+      #- fromFieldPath: spec.id
+      #  toFieldPath: spec.forProvider.keyName
+      #  transforms:
+      #    - type: string
+      #      string:
+      #        fmt: "%s-key"
+      - fromFieldPath: spec.size
+        toFieldPath: spec.forProvider.instanceTypes[0]
+        transforms:
+          - type: map
+            map:
+              small: t3.small
+              medium: t3.medium
+              large: t3.large
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-lt"
