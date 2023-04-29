@@ -2,7 +2,8 @@
 
 Example Crossplane repo based off of platform-ref-aws but using kustomize to build out the composition
 
-In the network folder there are kustomize base directories to build both a composition that creates a vpc and one that uses existing.
+In the network folder there are kustomize base directories to build both a composition that creates a vpc and one that uses existing. If you use an existing VPC be sure 
+dnshostname and dnssupport are enabled.
 
 ## Install XRDs and Composition
 
