@@ -2,11 +2,6 @@ resources:
 - composition-base.yaml
 
 patchesJson6902:
-  #- target:
-  #    kind: Composition
-  #    version: v1
-  #    name: aws.xnetworks.demo.upbound.io
-  #  path: resources/vpc.yaml
   - target:
       kind: Composition
       version: v1
@@ -21,12 +16,12 @@ patchesJson6902:
       kind: Composition
       version: v1
       name: aws.xnetworks.demo.upbound.io
-    path: resources/internet-gateway.yaml
+    path: resources/cni.yaml
   - target:
       kind: Composition
       version: v1
       name: aws.xnetworks.demo.upbound.io
-    path: resources/node-security-groups.yaml
+    path: resources/endpoints.yaml
   - target:
       kind: Composition
       version: v1
@@ -37,3 +32,13 @@ patchesJson6902:
       version: v1
       name: aws.xnetworks.demo.upbound.io
     path: resources/patch-sets.yaml
+  #- target:
+  #    kind: Composition
+  #    version: v1
+  #    name: aws.xnetworks.demo.upbound.io
+  #  path: resources/internet-gateway.yaml
+    #- target:
+    #    kind: Composition
+    #    version: v1
+    #    name: aws.xnetworks.demo.upbound.io
+    #  path: resources/node-security-groups.yaml

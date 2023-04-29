@@ -1,0 +1,626 @@
+# EC2
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ec2Endpoint
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpoint
+      spec:
+        forProvider:
+          serviceName: com.amazonaws.us-west-2.ec2
+          vpcEndpointType: Interface
+          privateDnsEnabled: true
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-ec2-endpoint"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ec2Endpoint-sna
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSubnetAssociation
+      spec:
+        forProvider:
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ec2-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ec2-endpoint-rta"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ec2Endpoint-sga
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSecurityGroupAssociation
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ec2-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ec2-endpoint-sgaa"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+# ECR-DKR
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ecrDkrEndpoint
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpoint
+      spec:
+        forProvider:
+          serviceName: com.amazonaws.us-west-2.ecr.dkr
+          vpcEndpointType: Interface
+          privateDnsEnabled: true
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-dkr-endpoint"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ecrDkrEndpoint-rta
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSubnetAssociation
+      spec:
+        forProvider:
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-dkr-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-dkr-endpoint-sna"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ecrDkrEndpoint-sga
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSecurityGroupAssociation
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-dkr-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-dkr-endpoint-sga"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+# ECR-API
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ecrApiEndpoint
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpoint
+      spec:
+        forProvider:
+          serviceName: com.amazonaws.us-west-2.ecr.api
+          vpcEndpointType: Interface
+          privateDnsEnabled: true
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-api-endpoint"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ecrApiEndpoint-sna
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSubnetAssociation
+      spec:
+        forProvider:
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-api-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-api-endpoint-sna"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: ecrApiEndpoint-sga
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSecurityGroupAssociation
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-api-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ecr-api-endpoint-sga"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+# STS
+- op: add
+  path: /spec/resources/-
+  value:
+    name: stsEndpoint
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpoint
+      spec:
+        forProvider:
+          serviceName: com.amazonaws.us-west-2.sts
+          vpcEndpointType: Interface
+          privateDnsEnabled: true
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-sts-endpoint"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: stsEndpoint-sna
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSubnetAssociation
+      spec:
+        forProvider:
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-sts-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-sts-endpoint-sna"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: stsEndpoint-sga
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSecurityGroupAssociation
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-sts-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-sts-endpoint-sga"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+# LOGS
+- op: add
+  path: /spec/resources/-
+  value:
+    name: logsEndpoint
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpoint
+      spec:
+        forProvider:
+          serviceName: com.amazonaws.us-west-2.logs
+          vpcEndpointType: Interface
+          privateDnsEnabled: true
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-logs-endpoint"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: logsEndpoint-sna
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSubnetAssociation
+      spec:
+        forProvider:
+          subnetIdSelector:
+            matchControllerRef: true
+            matchLabels:
+              access: private
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-logs-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-logs-endpoint-sna"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: logsEndpoint-sga
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointSecurityGroupAssociation
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-logs-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-logs-endpoint-sga"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+# S3
+- op: add
+  path: /spec/resources/-
+  value:
+    name: s3Endpoint
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpoint
+      spec:
+        forProvider:
+          serviceName: com.amazonaws.us-west-2.s3
+          vpcEndpointType: Gateway
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-s3-endpoint"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: s3Endpoint-rta
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPCEndpointRouteTableAssociation
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.routeTableIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-rttbl"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcEndpointIdRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-s3-endpoint"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-s3-endpoint-rta"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: network-id
+- op: add
+  path: /spec/resources/-
+  value:
+    name: endpointSecurityGroup
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroup
+      spec:
+        forProvider:
+          description: "Security group for endpoints"
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - type: PatchSet
+        patchSetName: standardTags
+      - type: PatchSet
+        patchSetName: network-id
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.labels[securitygroup]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: endpointSecurityGroupRuleIngress
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          description: "Allow inbound"
+          fromPort: 443
+          protocol: "tcp"
+          toPort: 443
+          cidrBlocks:
+            - "192.168.0.0/16"
+          type: ingress
+          securityGroupIdSelector:
+            matchControllerRef: true
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-sg-rule-endpoint-ingress"
+- op: add
+  path: /spec/resources/-
+  value:
+    name: endpointSecurityGroupRuleEgress
+    base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: SecurityGroupRule
+      spec:
+        forProvider:
+          description: "Allow egress"
+          fromPort: 0
+          protocol: "all"
+          toPort: 0
+          cidrBlocks:
+            - "0.0.0.0/0"
+          type: egress
+          securityGroupIdSelector:
+            matchControllerRef: true
+    patches:
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.securityGroupIdSelector.matchLabels[securitygroup]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-endpoint-sg"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-sg-rule-endpoint-egress"

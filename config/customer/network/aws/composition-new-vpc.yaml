@@ -3,8 +3,8 @@ kind: Composition
 metadata:
   labels:
     cloud: aws
-    vpcType: exists
-  name: aws.xnetworks.demo.upbound.io
+    vpcType: new
+  name: aws-new-vpc.xnetworks.demo.upbound.io
 spec:
   compositeTypeRef:
     apiVersion: demo.upbound.io/v1alpha1
@@ -26,6 +26,43 @@ spec:
   resources:
   - base:
       apiVersion: ec2.aws.upbound.io/v1beta1
+      kind: VPC
+      spec:
+        forProvider:
+          cidrBlock: 192.168.0.0/16
+          enableDnsHostnames: true
+          enableDnsSupport: true
+          tags:
+            Name: upbound-vpc
+            Owner: Platform Team
+    name: vcp
+    patches:
+    - fromFieldPath: spec.region
+      toFieldPath: spec.forProvider.region
+    - patchSetName: network-id
+      type: PatchSet
+    - patchSetName: standardTags
+      type: PatchSet
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.labels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.tags.Name
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
+  - base:
+      apiVersion: ec2.aws.upbound.io/v1beta1
       kind: Subnet
       metadata:
         labels:
@@ -39,8 +76,12 @@ spec:
             matchControllerRef: true
     name: subnet-private-a
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.region
       toFieldPath: spec.forProvider.availabilityZone
       transforms:
@@ -72,8 +113,12 @@ spec:
             matchControllerRef: true
     name: subnet-private-b
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.region
       toFieldPath: spec.forProvider.availabilityZone
       transforms:
@@ -95,8 +140,12 @@ spec:
       kind: RouteTable
     name: routeTable
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.region
       toFieldPath: spec.forProvider.region
     - patchSetName: network-id
@@ -211,8 +260,12 @@ spec:
           vpcEndpointType: Interface
     name: ec2Endpoint
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: metadata.name
       transforms:
@@ -289,8 +342,12 @@ spec:
           vpcEndpointType: Interface
     name: ecrDkrEndpoint
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: metadata.name
       transforms:
@@ -367,8 +424,12 @@ spec:
           vpcEndpointType: Interface
     name: ecrApiEndpoint
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: metadata.name
       transforms:
@@ -445,8 +506,12 @@ spec:
           vpcEndpointType: Interface
     name: stsEndpoint
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: metadata.name
       transforms:
@@ -523,8 +588,12 @@ spec:
           vpcEndpointType: Interface
     name: logsEndpoint
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: metadata.name
       transforms:
@@ -600,8 +669,12 @@ spec:
           vpcEndpointType: Gateway
     name: s3Endpoint
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: metadata.name
       transforms:
@@ -647,8 +720,12 @@ spec:
           description: Security group for endpoints
     name: endpointSecurityGroup
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.region
       toFieldPath: spec.forProvider.region
     - patchSetName: standardTags
@@ -741,8 +818,12 @@ spec:
           description: Cluster security group
     name: clusterSecurityGroup
     patches:
-    - fromFieldPath: spec.vpcId
-      toFieldPath: spec.forProvider.vpcId
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+      transforms:
+      - string:
+          fmt: '%s-vpc'
+        type: string
     - fromFieldPath: spec.region
       toFieldPath: spec.forProvider.region
     - patchSetName: standardTags

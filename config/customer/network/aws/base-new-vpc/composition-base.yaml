@@ -1,12 +1,13 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: xmysqlsrvs.demo.upbound.io
+  name: aws-new-vpc.xnetworks.demo.upbound.io
   labels:
     cloud: aws
+    vpcType: new
 spec:
   compositeTypeRef:
     apiVersion: demo.upbound.io/v1alpha1
-    kind: XMySQLSrv
+    kind: XNetwork
   patchSets: []
   resources: []

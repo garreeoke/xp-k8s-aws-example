@@ -1,13 +1,3 @@
-## Each resource will be added with the top three lines line the below, followed by the resource info
-# - op: add
-#   path: /spec/resources/-
-#   value:
-#     base: ...
-## If you want to add a patchset it would be ..
-# - op: add
-#   path: /spec/patchSets/-
-#   value:
-#     base: ...
 - op: add
   path: /spec/patchSets/-
   value:

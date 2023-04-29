@@ -4,6 +4,7 @@ metadata:
   name: aws.xnetworks.demo.upbound.io
   labels:
     cloud: aws
+    vpcType: exists
 spec:
   compositeTypeRef:
     apiVersion: demo.upbound.io/v1alpha1

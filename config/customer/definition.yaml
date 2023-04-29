@@ -21,7 +21,7 @@ spec:
           spec:
             type: object
             properties:
-              customerId:
+              id:
                 type: string
                 description: ID of the environment
               region:
@@ -56,7 +56,7 @@ spec:
                 type: string
                 description: rds version
             required:
-            - customerId
+            - id
             - env
             - region
             - owner

@@ -1,0 +1,25 @@
+- op: add
+  path: /spec/resources/-
+  value:
+    name: cniAddon
+    base:
+      apiVersion: eks.aws.upbound.io/v1beta1
+      kind: Addon
+      spec:
+        forProvider:
+          addonName: vpc-cni
+    patches:
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.clusterNameRef.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ekscluster"
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-cni-addon"
+      - fromFieldPath: spec.region
+        toFieldPath: spec.forProvider.region

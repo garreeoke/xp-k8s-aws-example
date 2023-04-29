@@ -54,8 +54,6 @@ spec:
       kind: NodeGroup
       spec:
         forProvider:
-          clusterNameSelector:
-            matchControllerRef: true
           launchTemplate:
           - version: "1"
           nodeRoleArnSelector:
@@ -66,11 +64,17 @@ spec:
             minSize: 3
           subnetIdSelector:
             matchLabels:
-              access: public
-    name: nodeGroupPublic
+              access: private
+    name: nodeGroupPrivate
     patches:
     - fromFieldPath: spec.k8Version
       toFieldPath: spec.forProvider.version
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.clusterNameRef.name
+      transforms:
+      - string:
+          fmt: '%s-ekscluster'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: spec.forProvider.launchTemplate[0].name
       transforms:
@@ -86,7 +90,7 @@ spec:
     - fromFieldPath: spec.region
       toFieldPath: spec.forProvider.region
     - fromFieldPath: spec.id
-      toFieldPath: spec.forProvider.subnetSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
   - base:
       apiVersion: ec2.aws.upbound.io/v1beta1
       kind: LaunchTemplate
@@ -100,6 +104,12 @@ spec:
           defaultVersion: 1
     name: nodeLaunchTemplate
     patches:
+    - fromFieldPath: spec.id
+      toFieldPath: spec.forProvider.securityGroupIdRefs[0].name
+      transforms:
+      - string:
+          fmt: '%s-endpoint-sg'
+        type: string
     - fromFieldPath: spec.size
       toFieldPath: spec.forProvider.instanceTypes[0]
       transforms:
@@ -116,23 +126,6 @@ spec:
       - string:
           fmt: '%s-lt'
         type: string
-  - base:
-      apiVersion: iam.aws.upbound.io/v1beta1
-      kind: InstanceProfile
-      spec:
-        forProvider:
-          roleSelector:
-            matchControllerRef: true
-    name: nodeInstanceProfile
-    patches:
-    - fromFieldPath: spec.id
-      toFieldPath: metadata.name
-      transforms:
-      - string:
-          fmt: '%s-ekscluster-node-instance-profile'
-        type: string
-    - patchSetName: matchRoleLabelWorkerNode
-      type: PatchSet
   - base:
       apiVersion: iam.aws.upbound.io/v1beta1
       kind: Role
@@ -208,7 +201,7 @@ spec:
             matchControllerRef: true
           vpcConfig:
           - endpointPrivateAccess: true
-            endpointPublicAccess: true
+            endpointPublicAccess: false
     name: kubernetesCluster
     patches:
     - patchSetName: standardTags
@@ -239,6 +232,12 @@ spec:
         fromFieldPath: Optional
       toFieldPath: status.eks.oidc
       type: ToCompositeFieldPath
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+      transforms:
+      - string:
+          fmt: '%s-ekscluster'
+        type: string
     - fromFieldPath: spec.id
       toFieldPath: spec.writeConnectionSecretToRef.name
       transforms:
@@ -286,6 +285,18 @@ spec:
           roleSelector:
             matchControllerRef: true
     name: clusterRolePolicyAttachment
+    patches:
+    - patchSetName: matchRoleLabelCluster
+      type: PatchSet
+  - base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+          roleSelector:
+            matchControllerRef: true
+    name: clusterServiceRolePolicyAttachment
     patches:
     - patchSetName: matchRoleLabelCluster
       type: PatchSet

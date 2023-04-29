@@ -10,7 +10,7 @@ spec:
   size: small
   cloud: aws
   k8Version: "1.25"
-  vpcId: vpc-0f1ff2d56ed24813c #vpcId
+  #vpcId: none
   compositionSelector:
     matchLabels:
-      vpcType: exists # new or exists ... if exists vpcId will need to be used above
+      vpcType: new # new or exists ... if exists vpcId will need to be used above

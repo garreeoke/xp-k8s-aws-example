@@ -6,8 +6,12 @@
       apiVersion: ec2.aws.upbound.io/v1beta1
       kind: RouteTable
     patches:
-      - fromFieldPath: spec.vpcId
-        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
       - fromFieldPath: spec.region
         toFieldPath: spec.forProvider.region
       - type: PatchSet

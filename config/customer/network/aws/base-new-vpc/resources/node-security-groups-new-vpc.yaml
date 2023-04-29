@@ -8,9 +8,15 @@
       spec:
         forProvider:
           description: "Security group for all nodes in the cluster"
+          vpcIdSelector:
+            matchControllerRef: true
     patches:
-      - fromFieldPath: spec.vpcId
-        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-vpc"
       - fromFieldPath: spec.region
         toFieldPath: spec.forProvider.region
       - type: PatchSet

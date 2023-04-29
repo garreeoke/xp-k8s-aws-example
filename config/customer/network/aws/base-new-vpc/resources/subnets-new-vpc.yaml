@@ -16,8 +16,12 @@
           tags:
             kubernetes.io/role/internal-elb: "1"
     patches:
-      - fromFieldPath: spec.vpcId
-        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
       - fromFieldPath: spec.region
         toFieldPath: spec.forProvider.availabilityZone
         transforms:
@@ -52,8 +56,12 @@
           tags:
             kubernetes.io/role/elb: "1"
     patches:
-      - fromFieldPath: spec.vpcId
-        toFieldPath: spec.forProvider.vpcId
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.vpcIdSelector.matchLabels[vpc]
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-vpc"
       - fromFieldPath: spec.region
         toFieldPath: spec.forProvider.availabilityZone
         transforms:

@@ -57,18 +57,18 @@
     patches:
       - type: PatchSet
         patchSetName: matchRoleLabelCluster
-#- op: add
-#  path: /spec/resources/-
-#  value:
-#    name: clusterServiceRolePolicyAttachment
-#    base:
-#      apiVersion: iam.aws.upbound.io/v1beta1
-#      kind: RolePolicyAttachment
-#      spec:
-#        forProvider:
-#          policyArn: arn:aws:iam::aws:policy/AmazonEKSServicePolicy
-#          roleSelector:
-#            matchControllerRef: true
-#    patches:
-#      - type: PatchSet
-#        patchSetName: matchRoleLabelCluster
+- op: add
+  path: /spec/resources/-
+  value:
+    name: clusterServiceRolePolicyAttachment
+    base:
+      apiVersion: iam.aws.upbound.io/v1beta1
+      kind: RolePolicyAttachment
+      spec:
+        forProvider:
+          policyArn: arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+          roleSelector:
+            matchControllerRef: true
+    patches:
+      - type: PatchSet
+        patchSetName: matchRoleLabelCluster

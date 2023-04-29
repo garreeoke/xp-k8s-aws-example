@@ -17,11 +17,11 @@ patchesJson6902:
       version: v1
       name: xeks.k8s.demo.upbound.io
     path: resources/launch-template.yaml
-  - target:
-      kind: Composition
-      version: v1
-      name: xeks.k8s.demo.upbound.io
-    path: resources/instance-profile.yaml
+  #- target:
+  #    kind: Composition
+  #    version: v1
+   #   name: xeks.k8s.demo.upbound.io
+  #  path: resources/instance-profile.yaml
   - target:
       kind: Composition
       version: v1

@@ -11,7 +11,7 @@
             matchControllerRef: true
           vpcConfig:
             - endpointPrivateAccess: true
-              endpointPublicAccess: true
+              endpointPublicAccess: false
     patches:
       - type: PatchSet
         patchSetName: standardTags
@@ -41,6 +41,12 @@
         toFieldPath: status.eks.oidc
         policy:
           fromFieldPath: Optional
+      - fromFieldPath: spec.id
+        toFieldPath: metadata.name
+        transforms:
+          - type: string
+            string:
+              fmt: "%s-ekscluster"
       - fromFieldPath: spec.id
         toFieldPath: spec.writeConnectionSecretToRef.name
         transforms:

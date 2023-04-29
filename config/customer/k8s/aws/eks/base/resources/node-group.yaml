@@ -1,19 +1,17 @@
 - op: add
   path: /spec/resources/-
   value:
-    name: nodeGroupPublic
+    name: nodeGroupPrivate
     base:
       apiVersion: eks.aws.upbound.io/v1beta1
       kind: NodeGroup
       spec:
         forProvider:
-          clusterNameSelector:
-            matchControllerRef: true
           nodeRoleArnSelector:
             matchControllerRef: true
           subnetIdSelector:
             matchLabels:
-              access: public
+              access: private
           scalingConfig:
             - desiredSize: 3
               minSize: 3
@@ -24,11 +22,25 @@
       - fromFieldPath: spec.k8Version
         toFieldPath: spec.forProvider.version
       - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.clusterNameRef.name
+        transforms:
+        - type: string
+          string:
+            fmt: "%s-ekscluster"
+      - fromFieldPath: spec.id
         toFieldPath: spec.forProvider.launchTemplate[0].name
         transforms:
           - type: string
             string:
               fmt: "%s-lt"
+      #- fromFieldPath: spec.size
+      #  toFieldPath: spec.forProvider.instanceTypes[0]
+      #  transforms:
+      #    - type: map
+      #      map:
+      #        small: t3.small
+      #        medium: t3.medium
+      #        large: t3.large
       - fromFieldPath: spec.id
         toFieldPath: spec.forProvider.nodeRoleArnSelector.matchLabels[role]
         transforms:
@@ -37,5 +49,5 @@
               fmt: "%s-nodegroup"
       - fromFieldPath: spec.region
         toFieldPath: spec.forProvider.region
-      - fromFieldPath: "spec.id"
-        toFieldPath: spec.forProvider.subnetSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]

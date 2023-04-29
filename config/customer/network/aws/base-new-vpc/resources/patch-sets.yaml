@@ -1,0 +1,19 @@
+- op: add
+  path: /spec/patchSets/-
+  value:
+    name: network-id
+    patches:
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.id
+        toFieldPath: metadata.labels[networks.aws.platformref.crossplane.io/network-id]
+- op: add
+  path: /spec/patchSets/-
+  value:
+    name: standardTags
+    patches:
+      - fromFieldPath: spec.clientId
+        toFieldPath: spec.forProvider.tags.Client
+      - fromFieldPath: spec.owner
+        toFieldPath: spec.forProvider.tags.Owner
+      - fromFieldPath: spec.env
+        toFieldPath: spec.forProvider.tags.Environment

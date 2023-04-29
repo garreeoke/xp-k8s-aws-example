@@ -2,7 +2,6 @@ apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
   name: xnetworks.demo.upbound.io
-  annotations:
 spec:
   group: demo.upbound.io
   names:

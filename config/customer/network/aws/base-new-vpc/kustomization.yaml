@@ -1,0 +1,49 @@
+resources:
+- composition-base.yaml
+
+patchesJson6902:
+  - target:
+      kind: Composition
+      version: v1
+      name: aws-new-vpc.xnetworks.demo.upbound.io
+    path: resources/vpc.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: aws-new-vpc.xnetworks.demo.upbound.io
+    path: resources/subnets-new-vpc.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: aws-new-vpc.xnetworks.demo.upbound.io
+    path: resources/routes-new-vpc.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: aws-new-vpc.xnetworks.demo.upbound.io
+    path: resources/cni.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: aws-new-vpc.xnetworks.demo.upbound.io
+    path: resources/endpoints-new-vpc.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: aws-new-vpc.xnetworks.demo.upbound.io
+    path: resources/cluster-security-group-new-vpc.yaml
+  - target:
+      kind: Composition
+      version: v1
+      name: aws-new-vpc.xnetworks.demo.upbound.io
+    path: resources/patch-sets.yaml
+  #- target:
+  #    kind: Composition
+  #    version: v1
+  #    name: aws-new-vpc.xnetworks.demo.upbound.io
+  #  path: resources/internet-gateway-new-vpc.yaml
+  #- target:
+  #    kind: Composition
+  #    version: v1
+  #    name: aws-new-vpc.xnetworks.demo.upbound.io
+  #  path: resources/node-security-groups-new-vpc.yaml

@@ -1,9 +1,9 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: xcustomerenvs.demo.upbound.io
+  name: xcustomerenvs-new-vpc.demo.upbound.io
   labels:
-    vpcType: exists
+    vpcType: new
 spec:
   compositeTypeRef:
     apiVersion: demo.upbound.io/v1alpha1
@@ -15,16 +15,14 @@ spec:
         spec:
           compositionSelector:
             matchLabels:
-              vpcType: exists
+              vpcType: new
       patches:
-        - fromFieldPath: spec.vpcId
-          toFieldPath: spec.vpcId
         - fromFieldPath: spec.id
           toFieldPath: spec.id
         - fromFieldPath: spec.region
           toFieldPath: spec.region
         - fromFieldPath: spec.cloud
-          toFieldPath: spec.compositionSelector.matchLabels.cloud
+          toFieldPath: compositionSelector.matchLabels.cloud
       name: compositeNetwork
     - base:
         apiVersion: demo.upbound.io/v1alpha1
