@@ -1,9 +1,9 @@
 apiVersion: demo.upbound.io/v1alpha1
 kind: CustomerEnv
 metadata:
-  name: torg-fico-1
+  name: torg-demo-1
 spec:
-  id: torg-fico-1
+  id: torg-demo-1
   region: us-west-2
   owner: torg
   env: stage

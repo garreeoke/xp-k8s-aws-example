@@ -37,7 +37,7 @@
       - fromFieldPath: spec.id
         toFieldPath: spec.forProvider.vpcConfig[0].subnetIdSelector.matchLabels[networks.aws.platformref.crossplane.io/network-id]
       - type: ToCompositeFieldPath
-        fromFieldPath: status.atProvider.identity.oidc.issuer
+        fromFieldPath: status.atProvider.identity[0].oidc[0].issuer
         toFieldPath: status.eks.oidc
         policy:
           fromFieldPath: Optional

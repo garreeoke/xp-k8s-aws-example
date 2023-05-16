@@ -1,16 +1,16 @@
 apiVersion: demo.upbound.io/v1alpha1
 kind: CustomerEnv
 metadata:
-  name: torg-fico-1
+  name: torg-demo-exists
 spec:
-  id: torg-fico-1
+  id: torg-demo-exists
   region: us-west-2
   owner: torg
   env: stage
   size: small
   cloud: aws
   k8Version: "1.25"
-  vpcId: vpc-0f1ff2d56ed24813c #vpcId
+  vpcId: vpc-00ac8ede1d651a436 #vpcId
   compositionSelector:
     matchLabels:
       vpcType: exists # new or exists ... if exists vpcId will need to be used above
