@@ -39,16 +39,18 @@ spec:
       kind: OpenIDConnectProvider
       spec:
         forProvider:
-          clientIDList:
+          clientIdList:
           - sts.amazonaws.com
           thumbprintList:
           - 9e99a48a9960b14926bb7f3b02e22da2b0ab7280
+          tags:
+            blah: blah
     name: oidcProvider
     patches:
     - fromFieldPath: status.eks.oidc
+      toFieldPath: spec.forProvider.url
       policy:
         fromFieldPath: Required
-      toFieldPath: spec.forProvider.url
   - base:
       apiVersion: eks.aws.upbound.io/v1beta1
       kind: NodeGroup
